@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khai mukk schop - Commission & Order Tracking System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Prompt', 'Mitr', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ffd6e8 0%, #fff0f5 50%, #e8f0fe 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 182, 193, 0.6);
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.15);
+        }
+
+        .cute-border {
+            border: 3px solid #ff9ebb;
+            border-radius: 24px;
+        }
+
+        .cute-btn-pink {
+            background: linear-gradient(180deg, #ff92b4 0%, #ff5c8d 100%);
+            box-shadow: 0 4px 12px rgba(255, 92, 141, 0.35);
+            transition: all 0.2s ease;
+        }
+
+        .cute-btn-pink:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 92, 141, 0.45);
+        }
+
+        .cute-btn-red {
+            background: linear-gradient(180deg, #ff7b7b 0%, #ee4545 100%);
+            box-shadow: 0 4px 12px rgba(238, 69, 69, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .cute-btn-red:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(238, 69, 69, 0.4);
+        }
+
+        .cute-btn-secondary {
+            background: linear-gradient(180deg, #ffffff 0%, #fff0f5 100%);
+            border: 2px solid #ffb6c1;
+            color: #d81b60;
+        }
+
+        .cute-btn-secondary:hover {
+            background: #ffe4e1;
+        }
+
+        /* Sparkle Animations */
+        @keyframes floating {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(3deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        .float-anim {
+            animation: floating 4s ease-in-out infinite;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #ffe4e1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #ff8da1;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #ff5c8d;
+        }
+
+        /* Custom Checkbox */
+        .cute-checkbox {
+            accent-color: #ff5c8d;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="p-3 md:p-6 custom-scrollbar text-gray-700">
+
+    <!-- Header Banner -->
+    <div class="max-w-7xl mx-auto mb-6">
+        <div class="glass-card cute-border p-6 relative overflow-hidden text-center rounded-3xl">
+            <div class="absolute -top-6 -left-6 w-24 h-24 bg-pink-300 rounded-full blur-2xl opacity-50"></div>
+            <div class="absolute -bottom-6 -right-6 w-24 h-24 bg-purple-300 rounded-full blur-2xl opacity-50"></div>
+            
+            <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-14 h-14 bg-pink-100 border-2 border-pink-400 rounded-2xl flex items-center justify-center text-2xl shadow-inner float-anim">
+                        🌸
+                    </div>
+                    <div class="text-left">
+                        <h1 class="text-3xl md:text-4xl font-bold text-pink-600 drop-shadow-sm flex items-center gap-2">
+                            Good thing <span class="text-xl md:text-2xl text-pink-400 font-normal">| Khai mukk schop</span>
+                        </h1>
+                        <p class="text-xs md:text-sm text-pink-500">✨ ตารางจัดการคิวงาน & รับคอมมิชชั่นแบบพาสเทลสุดคิวท์ ✨</p>
+                    </div>
+                </div>
+
+                <!-- Control Quick Actions -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="openModal('addModal')" class="cute-btn-pink text-white px-4 py-2.5 rounded-xl font-medium flex items-center gap-2 text-sm">
+                        <i class="fa-solid fa-plus-circle"></i> เพิ่มออเดอร์ใหม่
+                    </button>
+                    <button id="batchDeleteBtn" onclick="deleteSelectedOrders()" class="cute-btn-red text-white px-4 py-2.5 rounded-xl font-medium flex items-center gap-2 text-sm opacity-50 cursor-not-allowed" disabled>
+                        <i class="fa-solid fa-trash-can"></i> ลบที่เลือก (<span id="selectedCount">0</span>)
+                    </button>
+                    <button onclick="confirmClearAll()" class="cute-btn-secondary px-3 py-2.5 rounded-xl font-medium text-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-broom"></i> ล้างข้อมูลทั้งหมด
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Stats -->
+    <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="glass-card p-4 rounded-2xl flex items-center gap-3">
+            <div class="w-12 h-12 bg-pink-100 border border-pink-300 text-pink-500 rounded-2xl flex items-center justify-center text-xl">
+                <i class="fa-solid fa-list-check"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 font-medium">ออเดอร์ทั้งหมด</p>
+                <h3 id="statTotal" class="text-xl font-bold text-pink-600">0 รายการ</h3>
+            </div>
+        </div>
+        
+        <div class="glass-card p-4 rounded-2xl flex items-center gap-3">
+            <div class="w-12 h-12 bg-amber-100 border border-amber-300 text-amber-500 rounded-2xl flex items-center justify-center text-xl">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 font-medium">กำลังดำเนินการ</p>
+                <h3 id="statPending" class="text-xl font-bold text-amber-600">0 รายการ</h3>
+            </div>
+        </div>
+
+        <div class="glass-card p-4 rounded-2xl flex items-center gap-3">
+            <div class="w-12 h-12 bg-emerald-100 border border-emerald-300 text-emerald-500 rounded-2xl flex items-center justify-center text-xl">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 font-medium">เสร็จสิ้นแล้ว</p>
+                <h3 id="statDone" class="text-xl font-bold text-emerald-600">0 รายการ</h3>
+            </div>
+        </div>
+
+        <div class="glass-card p-4 rounded-2xl flex items-center gap-3">
+            <div class="w-12 h-12 bg-purple-100 border border-purple-300 text-purple-500 rounded-2xl flex items-center justify-center text-xl">
+                <i class="fa-solid fa-coins"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500 font-medium">ยอดรวมรายได้</p>
+                <h3 id="statRevenue" class="text-xl font-bold text-purple-600">฿0</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Table Container -->
+    <div class="max-w-7xl mx-auto">
+        <div class="glass-card cute-border rounded-3xl p-4 md:p-6 shadow-xl relative">
+            
+            <!-- Filters and Search Bar -->
+            <div class="flex flex-col md:flex-row gap-3 justify-between items-center mb-5 pb-4 border-b border-pink-200">
+                <div class="relative w-full md:w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-pink-400"></i>
+                    <input type="text" id="searchInput" oninput="renderOrders()" placeholder="ค้นหาชื่อลูกค้า, ประเภทงาน..." 
+                        class="w-full pl-10 pr-10 py-2 rounded-xl border-2 border-pink-200 focus:border-pink-400 focus:outline-none bg-white/80 text-sm">
+                    <button onclick="clearSearch()" id="clearSearchBtn" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-pink-500">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
+                    <select id="statusFilter" onchange="renderOrders()" class="px-3 py-2 rounded-xl border-2 border-pink-200 bg-white/80 text-xs md:text-sm focus:outline-none font-medium text-pink-600">
+                        <option value="ALL">🌸 สถานะทั้งหมด</option>
+                        <option value="ยังไม่เริ่ม">⏳ ยังไม่เริ่ม</option>
+                        <option value="กำลังทำ">🎨 กำลังทำ</option>
+                        <option value="ส่งร่างแล้ว">📩 ส่งร่างแล้ว</option>
+                        <option value="เสร็จสิ้น">✅ เสร็จสิ้น</option>
+                    </select>
+
+                    <select id="paymentFilter" onchange="renderOrders()" class="px-3 py-2 rounded-xl border-2 border-pink-200 bg-white/80 text-xs md:text-sm focus:outline-none font-medium text-pink-600">
+                        <option value="ALL">💰 การชำระเงินทั้งหมด</option>
+                        <option value="ยังไม่จ่าย">❌ ยังไม่จ่าย</option>
+                        <option value="มัดจำแล้ว">🟡 มัดจำแล้ว</option>
+                        <option value="ชำระแล้ว">🟢 ชำระครบแล้ว</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Table Wrapper -->
+            <div class="overflow-x-auto rounded-2xl border border-pink-200 bg-white/60 custom-scrollbar">
+                <table class="w-full text-left text-xs md:text-sm border-collapse min-w-[900px]">
+                    <thead>
+                        <tr class="bg-gradient-to-r from-pink-300 via-pink-200 to-amber-100 text-pink-800 font-semibold border-b border-pink-300">
+                            <th class="p-3 text-center w-10">
+                                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" class="cute-checkbox">
+                            </th>
+                            <th class="p-3 text-center w-12">#</th>
+                            <th class="p-3">ชื่อลูกค้า / ช่องทาง</th>
+                            <th class="p-3">ประเภทงาน</th>
+                            <th class="p-3">ระยะภาพ (Scale)</th>
+                            <th class="p-3">สิทธิ์การใช้งาน</th>
+                            <th class="p-3 text-right">ราคา (บาท)</th>
+                            <th class="p-3 text-center">สถานะงาน</th>
+                            <th class="p-3 text-center">การชำระเงิน</th>
+                            <th class="p-3 text-center">กำหนดส่ง</th>
+                            <th class="p-3 text-center w-28">จัดการ / ลบ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderTableBody">
+                        <!-- Rows dynamically rendered here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden py-12 text-center">
+                <div class="text-5xl mb-3">🐱</div>
+                <p class="text-pink-500 font-medium">ยังไม่มีรายการออเดอร์ในระบบ</p>
+                <p class="text-xs text-gray-400 mt-1">กดปุ่ม "เพิ่มออเดอร์ใหม่" เพื่อเริ่มบันทึกข้อมูลได้เลย!</p>
+            </div>
+
+            <!-- Table Footer Status Info -->
+            <div class="mt-4 flex flex-col md:flex-row justify-between items-center text-xs text-pink-500 gap-2">
+                <div>
+                    💡 <span class="font-medium">เคล็ดลับ:</span> คุณสามารถลบข้อมูลเฉพาะรายการโดยกดปุ่มถังขยะสีแดง <i class="fa-solid fa-trash-can text-red-400"></i> ได้ทันที
+                </div>
+                <div id="tableCounter">แสดง 0 รายการ</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modal: Add New Order -->
+    <div id="addModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="glass-card cute-border rounded-3xl max-w-lg w-full p-6 relative animate-fade-in bg-white/95">
+            <button onclick="closeModal('addModal')" class="absolute top-4 right-4 text-gray-400 hover:text-pink-500 text-xl font-bold w-8 h-8 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h2 class="text-xl font-bold text-pink-600 mb-4 flex items-center gap-2">
+                <span>🎀</span> เพิ่มออเดอร์งานใหม่
+            </h2>
+
+            <form id="addOrderForm" onsubmit="handleAddOrder(event)" class="space-y-3 text-xs md:text-sm">
+                <div>
+                    <label class="block font-medium text-gray-700 mb-1">ชื่อลูกค้า / ช่องทางติดต่อ *</label>
+                    <div class="relative">
+                        <input type="text" id="custName" required placeholder="เช่น Khun Mook (FB/TW)" class="w-full p-2.5 rounded-xl border border-pink-200 focus:border-pink-400 focus:outline-none">
+                        <button type="button" onclick="clearInput('custName')" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-400"><i class="fa-solid fa-circle-xmark"></i></button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">ประเภทงาน</label>
+                        <select id="workType" class="w-full p-2.5 rounded-xl border border-pink-200 focus:border-pink-400 focus:outline-none bg-white">
+                            <option value="Chibi">Chibi</option>
+                            <option value="Lineart">Lineart</option>
+                            <option value="Full CG">Full CG</option>
+                            <option value="ปกนิยาย">ปกนิยาย</option>
+                            <option value="SD / Emote">SD / Emote</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">ระยะภาพ (Scale)</label>
+                        <select id="workScale" class="w-full p-2.5 rounded-xl border border-pink-200 focus:border-pink-400 focus:outline-none bg-white">
+                            <option value="Headshot">Headshot</option>
+                            <option value="Bust up">Bust up</option>
+                            <option value="Waist up">Waist up</option>
+                            <option value="Full body">Full body</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">สิทธิ์การใช้งาน</label>
+                        <select id="usageType" class="w-full p-2.5 rounded-xl border border-pink-200 focus:border-pink-400 focus:outline-none bg-white">
+                            <option value="ส่วนตัว">ส่วนตัว</option>
+                            <option value="เชิงพาณิชย์">เชิงพาณิชย์ (Commercial)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">ราคา (บาท)</label>
+                        <input type="number" id="price" required min="0" placeholder="500" class="w-full p-2.5 rounded-xl border border-pink-200 focus:border-pink-400 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">สถานะงาน</label>
+                        <select id="status" class="w-full p-2.5 rounded-xl border border-pink-200 focus:border-pink-400 focus:outline-none bg-white">
+                            <option value="ยังไม่เริ่ม">⏳ ยังไม่เริ่ม</option>
+                            <option value="กำลังทำ">🎨 กำลังทำ</option>
+                            <option value="ส่งร่างแล้ว">📩 ส่งร่างแล้ว</option>
+                            <option value="เสร็จสิ้น">✅ เสร็จสิ้น</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-medium text-gray-700 mb-1">การชำระเงิน</label>
+                        <select id="payment" class="w-full p-2.5 rounded-xl border border-pink-200 focus:border-pink-400 focus:outline-none bg-white">
+                            <option value="ยังไม่จ่าย">❌ ยังไม่จ่าย</option>
+                            <option value="มัดจำแล้ว">🟡 มัดจำแล้ว</option>
+                            <option value="ชำระแล้ว">🟢 ชำระครบแล้ว</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-medium text-gray-700 mb-1">กำหนดส่งงาน</label>
+                    <input type="date" id="dueDate" class="w-full p-2.5 rounded-xl border border-pink-200 focus:border-pink-400 focus:outline-none">
+                </div>
+
+                <div class="pt-3 flex gap-2 justify-end">
+                    <button type="button" onclick="closeModal('addModal')" class="cute-btn-secondary px-4 py-2 rounded-xl font-medium">ยกเลิก</button>
+                    <button type="submit" class="cute-btn-pink text-white px-5 py-2 rounded-xl font-medium">บันทึกข้อมูล</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Confirm Delete Single Row -->
+    <div id="deleteConfirmModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="glass-card cute-border rounded-3xl max-w-sm w-full p-6 text-center bg-white/95 animate-fade-in">
+            <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800 mb-1">ยืนยันการลบข้อมูล?</h3>
+            <p class="text-xs text-gray-500 mb-5">คุณแน่ใจหรือว่าต้องการลบออเดอร์ของ <span id="deleteTargetName" class="font-bold text-pink-600"></span> ? ข้อมูลนี้ไม่สามารถกู้คืนได้</p>
+            <div class="flex gap-2 justify-center">
+                <button onclick="closeModal('deleteConfirmModal')" class="cute-btn-secondary px-4 py-2 rounded-xl text-xs font-medium">ยกเลิก</button>
+                <button id="confirmDeleteBtn" class="cute-btn-red text-white px-5 py-2 rounded-xl text-xs font-medium">ยืนยันลบข้อมูล</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-gray-900/90 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 text-xs md:text-sm z-50 transition-all transform translate-y-20 opacity-0 pointer-events-none">
+        <span id="toastIcon" class="text-lg">✨</span>
+        <span id="toastMessage">แจ้งเตือน</span>
+    </div>
+
+    <script>
+        // Initial Sample Data
+        let orders = [
+            { id: 1, name: 'Khun Somchai (FB)', type: 'Chibi', scale: 'Full body', usage: 'เชิงพาณิชย์', price: 850, status: 'กำลังทำ', payment: 'มัดจำแล้ว', dueDate: '2026-10-10' },
+            { id: 2, name: 'Mook_Cute (TW)', type: 'Full CG', scale: 'Bust up', usage: 'ส่วนตัว', price: 1200, status: 'ส่งร่างแล้ว', payment: 'ชำระแล้ว', dueDate: '2026-10-15' },
+            { id: 3, name: 'Neko_Art (IG)', type: 'Lineart', scale: 'Headshot', usage: 'ส่วนตัว', price: 350, status: 'ยังไม่เริ่ม', payment: 'ยังไม่จ่าย', dueDate: '2026-10-20' }
+        ];
+
+        let selectedIds = new Set();
+        let pendingDeleteId = null;
+
+        // Render Table Function
+        function renderOrders() {
+            const tableBody = document.getElementById('orderTableBody');
+            const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
+            const statusVal = document.getElementById('statusFilter').value;
+            const paymentVal = document.getElementById('paymentFilter').value;
+            const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+            clearSearchBtn.classList.toggle('hidden', searchVal === '');
+
+            // Filter
+            const filtered = orders.filter(item => {
+                const matchSearch = item.name.toLowerCase().includes(searchVal) || item.type.toLowerCase().includes(searchVal);
+                const matchStatus = statusVal === 'ALL' || item.status === statusVal;
+                const matchPayment = paymentVal === 'ALL' || item.payment === paymentVal;
+                return matchSearch && matchStatus && matchPayment;
+            });
+
+            tableBody.innerHTML = '';
+
+            if (filtered.length === 0) {
+                document.getElementById('emptyState').classList.remove('hidden');
+            } else {
+                document.getElementById('emptyState').classList.add('hidden');
+                
+                filtered.forEach((item, idx) => {
+                    const isChecked = selectedIds.has(item.id);
+                    const tr = document.createElement('tr');
+                    tr.className = "border-b border-pink-100 hover:bg-pink-50/50 transition-colors";
+                    tr.innerHTML = `
+                        <td class="p-3 text-center">
+                            <input type="checkbox" class="cute-checkbox" ${isChecked ? 'checked' : ''} onchange="toggleSelect(${item.id})">
+                        </td>
+                        <td class="p-3 text-center font-semibold text-pink-400">${idx + 1}</td>
+                        <td class="p-3 font-medium text-gray-800">${escapeHtml(item.name)}</td>
+                        <td class="p-3"><span class="px-2.5 py-1 bg-pink-100 text-pink-600 rounded-lg text-xs font-medium">${escapeHtml(item.type)}</span></td>
+                        <td class="p-3 text-gray-600">${escapeHtml(item.scale)}</td>
+                        <td class="p-3 text-gray-600">${escapeHtml(item.usage)}</td>
+                        <td class="p-3 text-right font-bold text-pink-600">฿${Number(item.price).toLocaleString()}</td>
+                        <td class="p-3 text-center">${getStatusBadge(item.status)}</td>
+                        <td class="p-3 text-center">${getPaymentBadge(item.payment)}</td>
+                        <td class="p-3 text-center text-xs text-gray-500">${item.dueDate || '-'}</td>
+                        <td class="p-3 text-center">
+                            <div class="flex items-center justify-center gap-1.5">
+                                <button onclick="promptDeleteSingle(${item.id})" title="ลบรายการนี้" class="w-8 h-8 rounded-xl bg-red-100 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center shadow-sm">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            }
+
+            // Update Counters & Stats
+            document.getElementById('tableCounter').innerText = `แสดง ${filtered.length} จากทั้งหมด ${orders.length} รายการ`;
+            updateDashboardStats();
+            updateBatchDeleteButton();
+        }
+
+        // Helpers Status Badges
+        function getStatusBadge(status) {
+            switch(status) {
+                case 'ยังไม่เริ่ม': return `<span class="px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">⏳ ยังไม่เริ่ม</span>`;
+                case 'กำลังทำ': return `<span class="px-2.5 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">🎨 กำลังทำ</span>`;
+                case 'ส่งร่างแล้ว': return `<span class="px-2.5 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">📩 ส่งร่างแล้ว</span>`;
+                case 'เสร็จสิ้น': return `<span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">✅ เสร็จสิ้น</span>`;
+                default: return status;
+            }
+        }
+
+        function getPaymentBadge(payment) {
+            switch(payment) {
+                case 'ยังไม่จ่าย': return `<span class="px-2.5 py-1 bg-red-100 text-red-600 rounded-full text-xs font-medium">❌ ยังไม่จ่าย</span>`;
+                case 'มัดจำแล้ว': return `<span class="px-2.5 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">🟡 มัดจำแล้ว</span>`;
+                case 'ชำระแล้ว': return `<span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">🟢 ชำระแล้ว</span>`;
+                default: return payment;
+            }
+        }
+
+        // Dashboard Stats Calculation
+        function updateDashboardStats() {
+            const total = orders.length;
+            const pending = orders.filter(o => o.status === 'กำลังทำ' || o.status === 'ยังไม่เริ่ม').length;
+            const done = orders.filter(o => o.status === 'เสร็จสิ้น').length;
+            const revenue = orders.reduce((sum, o) => sum + Number(o.price || 0), 0);
+
+            document.getElementById('statTotal').innerText = `${total} รายการ`;
+            document.getElementById('statPending').innerText = `${pending} รายการ`;
+            document.getElementById('statDone').innerText = `${done} รายการ`;
+            document.getElementById('statRevenue').innerText = `฿${revenue.toLocaleString()}`;
+        }
+
+        // Add Order Handler
+        function handleAddOrder(e) {
+            e.preventDefault();
+            const newOrder = {
+                id: Date.now(),
+                name: document.getElementById('custName').value,
+                type: document.getElementById('workType').value,
+                scale: document.getElementById('workScale').value,
+                usage: document.getElementById('usageType').value,
+                price: Number(document.getElementById('price').value) || 0,
+                status: document.getElementById('status').value,
+                payment: document.getElementById('payment').value,
+                dueDate: document.getElementById('dueDate').value
+            };
+
+            orders.unshift(newOrder);
+            renderOrders();
+            closeModal('addModal');
+            document.getElementById('addOrderForm').reset();
+            showToast('🌸 เพิ่มออเดอร์ใหม่สำเร็จแล้ว!');
+        }
+
+        // Delete Handlers
+        function promptDeleteSingle(id) {
+            const target = orders.find(o => o.id === id);
+            if (!target) return;
+            pendingDeleteId = id;
+            document.getElementById('deleteTargetName').innerText = target.name;
+            document.getElementById('confirmDeleteBtn').onclick = executeSingleDelete;
+            openModal('deleteConfirmModal');
+        }
+
+        function executeSingleDelete() {
+            if (pendingDeleteId !== null) {
+                orders = orders.filter(o => o.id !== pendingDeleteId);
+                selectedIds.delete(pendingDeleteId);
+                pendingDeleteId = null;
+                renderOrders();
+                closeModal('deleteConfirmModal');
+                showToast('🗑️ ลบรายการเรียบร้อยแล้ว');
+            }
+        }
+
+        function deleteSelectedOrders() {
+            if (selectedIds.size === 0) return;
+            if (confirm(`คุณต้องการลบรายการที่เลือกทั้งหมด ${selectedIds.size} รายการใช่หรือไม่?`)) {
+                orders = orders.filter(o => !selectedIds.has(o.id));
+                selectedIds.clear();
+                document.getElementById('selectAll').checked = false;
+                renderOrders();
+                showToast('🗑️ ลบรายการที่เลือกเรียบร้อยแล้ว');
+            }
+        }
+
+        function confirmClearAll() {
+            if (orders.length === 0) {
+                showToast('❌ ไม่มีข้อมูลให้ล้าง');
+                return;
+            }
+            if (confirm('⚠️ คุณแน่ใจหรือไม่ที่จะล้างข้อมูลออเดอร์ทั้งหมดในตาราง?')) {
+                orders = [];
+                selectedIds.clear();
+                renderOrders();
+                showToast('🧹 ล้างข้อมูลทั้งหมดเรียบร้อยแล้ว');
+            }
+        }
+
+        // Selection & Checkbox Handlers
+        function toggleSelect(id) {
+            if (selectedIds.has(id)) {
+                selectedIds.delete(id);
+            } else {
+                selectedIds.add(id);
+            }
+            updateBatchDeleteButton();
+        }
+
+        function toggleSelectAll() {
+            const isChecked = document.getElementById('selectAll').checked;
+            if (isChecked) {
+                orders.forEach(o => selectedIds.add(o.id));
+            } else {
+                selectedIds.clear();
+            }
+            renderOrders();
+        }
+
+        function updateBatchDeleteButton() {
+            const btn = document.getElementById('batchDeleteBtn');
+            const countSpan = document.getElementById('selectedCount');
+            const count = selectedIds.size;
+
+            countSpan.innerText = count;
+            if (count > 0) {
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                btn.removeAttribute('disabled');
+            } else {
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                btn.setAttribute('disabled', 'true');
+            }
+        }
+
+        // Helper UI Utilities
+        function clearInput(id) {
+            document.getElementById(id).value = '';
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            renderOrders();
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').innerText = message;
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        // Initial Page Load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderOrders();
+        });
+    </script>
+</body>
+</html>
